@@ -32,9 +32,6 @@ Example of valid filenames:
 - **Robust error-checking**: If no valid files are found, processing stops with an error message
 - **Preallocation**: For improved performance in the next steps
 
-## 🧪 Why This Step Is Critical
-
-Ensuring the correct file structure and subject ID format prevents downstream errors during data slicing, CRP calculation, and variability analysis. By filtering only valid files upfront, you reduce the risk of silent failures and unnecessary debugging later in the pipeline.
 
 ## 📌 Code Snippet (for demonstration only)
 
