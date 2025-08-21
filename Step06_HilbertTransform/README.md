@@ -1,69 +1,70 @@
-# Step 06: Compute Phase Angles using Hilbert Transform (Toolbox-Free)
+# Step 06: Define Helper Function for Hilbert Transform
 
-This step computes the **instantaneous phase angle** of segment motion using a custom Hilbert Transform function. The computed phase angles will be used to evaluate continuous relative phase (CRP), phase variability, and PCI.
-
----
-
-## 🔍 Objective
-
-To compute the phase angle (φ) of each 100-point gait cycle for every axis (X, Y, Z) of the following body segments:
-
-- `L_thigh`, `L_shank`, `L_foot`
-- `R_thigh`, `R_shank`, `R_foot`
-- `pelvis`, `trunk`
+This step defines a reusable helper function named `Hilbert_PA` for computing phase angles from a motion signal using the Hilbert Transform. This function will be called in later steps (e.g., Step 07) to calculate the instantaneous phase of segmental angular data.
 
 ---
 
-## ⚙️ Processing Steps
+## 🧠 Purpose
 
-1. **Validate input**:
-   - Ensure `normalized_cycles_all` exists
-
-2. **Define segment list**:
-   - All segments and axes (X, Y, Z) to be processed
-
-3. **Loop through subject × trial × cycle**:
-   - Extract the 100-point time series for each segment-axis
-   - Apply Hilbert transform to compute instantaneous phase angle
-
-4. **Store results** in a structured variable:
-   - `phase_angles.(segment).(axis){subject, trial}{cycle}`
+To create a standalone MATLAB function that:
+- Accepts a one-dimensional signal (e.g., joint angle in degrees)
+- Centers the signal around zero
+- Applies the Hilbert Transform to compute the analytic signal
+- Extracts the instantaneous phase angle (in degrees)
 
 ---
 
-## ✅ Key Concepts and Functions
+## 🧮 Function Details
 
-- **Hilbert Transform**: Extracts the analytical signal and calculates its angle in degrees.
-- Implemented using:
-  - `fft()` for frequency domain conversion
-  - Zeroing negative frequencies
-  - `ifft()` to reconstruct the analytical signal
-- Custom implementation is toolbox-free (no Signal Processing Toolbox required)
-- Input signals must be:
-  - 1D vectors
-  - Centered (mean-subtracted)
-  - Length = 100
+### 🔧 **Function Name**: `Hilbert_PA`
+
+### 📥 Input
+- `signal`: A numeric 1D array (e.g., segment angle or velocity)
+  - Must be non-empty and contain numeric values
+  - Can contain `NaN` values (they will be handled during centering)
+
+### 📤 Output
+- `phase_angle`: A 1D array of phase angles in **degrees**
 
 ---
 
-## 🧪 Code Snippet (demonstration)
+## 🔁 Processing Steps
+
+1. **Input validation**:
+   - Checks if input is numeric and non-empty.
+   - Warns if `NaN` values are present.
+
+2. **Zero centering**:
+   - Removes the mean from the signal using `omitnan` to handle missing data.
+
+3. **Hilbert Transform**:
+   - Uses MATLAB’s built-in `hilbert()` function to compute the analytic signal.
+
+4. **Phase angle extraction**:
+   - Converts the complex phase from radians to degrees using `angle()` and `rad2deg()`.
+
+---
+
+## 📦 MATLAB Code
 
 ```matlab
 function phase_angle = Hilbert_PA(signal)
-    % Center signal
-    centered_signal = signal - mean(signal, 'omitnan');
-    N = length(centered_signal);
-    X = fft(centered_signal);
-
-    % Construct Hilbert filter
-    H = zeros(N,1);
-    if mod(N, 2) == 0
-        H(1) = 1; H(N/2+1) = 1; H(2:N/2) = 2;
-    else
-        H(1) = 1; H(2:(N+1)/2) = 2;
+    % Validate input
+    if ~isnumeric(signal) || isempty(signal)
+        error('Input signal must be a non-empty numeric array.');
     end
 
-    % Compute analytic signal
-    analytic_signal = ifft(X .* H);
-    phase_angle = rad2deg(angle(analytic_signal));
+    % Check for NaN values and warn
+    if any(isnan(signal))
+        warning('Input signal contains NaN values. These will be ignored during Hilbert Transform.');
+    end
+
+    % Center the signal around zero before Hilbert Transform
+    centered_signal = signal - mean(signal, 'omitnan'); % Ignore NaNs during centering
+
+    % Apply Hilbert Transform to compute phase angles
+    analytic_signal = hilbert(centered_signal); % Compute analytic signal
+
+    % Compute phase angle in degrees
+    phase_angle = rad2deg(angle(analytic_signal)); % Convert radians to degrees
 end
