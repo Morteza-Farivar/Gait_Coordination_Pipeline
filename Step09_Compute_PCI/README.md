@@ -60,7 +60,3 @@ All metrics are calculated per file and per trial and saved as `cell` arrays.
 - `R_phi_abs`, `L_phi_abs`: Absolute deviation
 - `R_phi_cv`, `L_phi_cv`: Coefficient of variation
 - `pci`: Final PCI score
-
-
-
----
