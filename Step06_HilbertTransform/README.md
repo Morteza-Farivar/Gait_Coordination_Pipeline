@@ -47,7 +47,13 @@ To create a standalone MATLAB function that:
 
 ## 📦 MATLAB Code
 
-```matlab
+%% Step 6: Define Helper Function for Hilbert Transform
+
+% Function to compute the phase angle of a signal using Hilbert Transform
+% Input:
+%   signal - Numeric array (joint angle or motion data in degrees)
+% Output:
+%   phase_angle - Phase angles in degrees
 function phase_angle = Hilbert_PA(signal)
     % Validate input
     if ~isnumeric(signal) || isempty(signal)
